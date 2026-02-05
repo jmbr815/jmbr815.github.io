@@ -1,85 +1,114 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Control ESP32</title>
-<style>
-  body {
-    font-family: Arial;
-    text-align: center;
-    background: #111;
-    color: white;
-  }
+  <meta charset="UTF-8">
+  <title>Control Carro 4WD Omnidireccional</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: white;
+      text-align: center;
+    }
 
-  input {
-    padding: 10px;
-    font-size: 16px;
-    width: 200px;
-    margin-bottom: 15px;
-  }
+    h1 {
+      margin-bottom: 10px;
+    }
 
-  .btn {
-    width: 120px;
-    height: 60px;
-    margin: 10px;
-    font-size: 18px;
-    background: #444;
-    color: white;
-    border: none;
-    border-radius: 10px;
-  }
+    .ip-box {
+      margin-bottom: 20px;
+    }
 
-  .btn:active {
-    background: limegreen;
-    color: black;
-  }
-</style>
+    input {
+      padding: 8px;
+      font-size: 16px;
+      width: 200px;
+      text-align: center;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    button {
+      width: 100px;
+      height: 100px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.1s, transform 0.1s;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .active {
+      background-color: #00c8ff !important;
+    }
+
+    .stop {
+      background-color: #b00020;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Control Omnidireccional ESP32</h2>
+  <h1>Control 4WD Omnidireccional</h1>
 
-<input type="text" id="ip" placeholder="IP del ESP32">
-<br>
+  <div class="ip-box">
+    <p>IP del ESP32:</p>
+    <input type="text" id="ip" placeholder="192.168.1.100">
+  </div>
 
-<button class="btn"
-  onmousedown="send('forward')"
-  onmouseup="send('stop')"
-  ontouchstart="send('forward')"
-  ontouchend="send('stop')">⬆</button>
+  <div class="controls">
+    <div></div>
+    <button onmousedown="send('forward', this)" onmouseup="send('stop', this)">↑</button>
+    <div></div>
 
-<br>
+    <button onmousedown="send('left', this)" onmouseup="send('stop', this)">←</button>
+    <button class="stop" onmousedown="send('stop', this)">STOP</button>
+    <button onmousedown="send('right', this)" onmouseup="send('stop', this)">→</button>
 
-<button class="btn"
-  onmousedown="send('left')"
-  onmouseup="send('stop')"
-  ontouchstart="send('left')"
-  ontouchend="send('stop')">⬅</button>
+    <div></div>
+    <button onmousedown="send('backward', this)" onmouseup="send('stop', this)">↓</button>
+    <div></div>
+  </div>
 
-<button class="btn"
-  onmousedown="send('right')"
-  onmouseup="send('stop')"
-  ontouchstart="send('right')"
-  ontouchend="send('stop')">➡</button>
+  <script>
+    function send(command, button) {
+      const ip = document.getElementById("ip").value;
 
-<br>
+      if (!ip) {
+        alert("Por favor ingresa la IP del ESP32");
+        return;
+      }
 
-<button class="btn"
-  onmousedown="send('backward')"
-  onmouseup="send('stop')"
-  ontouchstart="send('backward')"
-  ontouchend="send('stop')">⬇</button>
+      // efecto visual
+      clearActive();
+      if (button) button.classList.add("active");
 
-<script>
-function send(cmd) {
-  const ip = document.getElementById("ip").value;
-  if (ip === "") {
-    alert("Escribe la IP del ESP32");
-    return;
-  }
-  fetch(`http://${ip}/${cmd}`).catch(err => console.log(err));
-}
-</script>
+      fetch(`http://${ip}/${command}`)
+        .catch(error => console.log("Error:", error));
+    }
+
+    function clearActive() {
+      const buttons = document.querySelectorAll("button");
+      buttons.forEach(btn => btn.classList.remove("active"));
+    }
+
+    // Seguridad: al soltar el mouse fuera del botón
+    document.body.onmouseup = () => {
+      clearActive();
+    };
+  </script>
 
 </body>
 </html>
