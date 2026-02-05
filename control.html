@@ -1,100 +1,79 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Control 4WD Omnidireccional</title>
+<meta charset="UTF-8">
+<title>Control 4WD Omnidireccional</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      text-align: center;
-    }
+<style>
+  body {
+    font-family: Arial;
+    text-align: center;
+    background: #f0f0f0;
+  }
+  button {
+    width: 90px;
+    height: 60px;
+    font-size: 18px;
+    margin: 5px;
+  }
+  .stop {
+    background: red;
+    color: white;
+    width: 280px;
+  }
+</style>
 
-    h2 {
-      margin-top: 20px;
-    }
+<script>
+  // 👇 IP DEL ESP32 (CAMBIAR AQUÍ)
+  const ESP32_IP = "192.168.1.85";
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 100px);
-      grid-gap: 10px;
-      justify-content: center;
-      margin-top: 20px;
-    }
+  function send(cmd) {
+    fetch(`http://${ESP32_IP}/cmd?move=${cmd}`);
+  }
 
-    button {
-      width: 100px;
-      height: 60px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+  function hold(id, cmd) {
+    const b = document.getElementById(id);
+    b.onmousedown = () => send(cmd);
+    b.onmouseup = () => send("S");
+    b.ontouchstart = () => send(cmd);
+    b.ontouchend = () => send("S");
+  }
 
-    .wide {
-      grid-column: span 3;
-      height: 50px;
-      background-color: #ff4d4d;
-      color: white;
-      font-weight: bold;
-    }
-  </style>
-
-  <script>
-    function sendCommand(cmd) {
-      fetch(`/cmd?move=${cmd}`);
-    }
-
-    function setupButton(id, cmd) {
-      const btn = document.getElementById(id);
-
-      btn.addEventListener("mousedown", () => sendCommand(cmd));
-      btn.addEventListener("mouseup", () => sendCommand("S"));
-      btn.addEventListener("mouseleave", () => sendCommand("S"));
-
-      btn.addEventListener("touchstart", () => sendCommand(cmd));
-      btn.addEventListener("touchend", () => sendCommand("S"));
-    }
-
-    window.onload = () => {
-      setupButton("FL", "FL");
-      setupButton("F", "F");
-      setupButton("FR", "FR");
-
-      setupButton("L", "SL");
-      setupButton("R", "SR");
-
-      setupButton("BL", "BL");
-      setupButton("B", "B");
-      setupButton("BR", "BR");
-
-      setupButton("RL", "RL");
-      setupButton("RR", "RR");
-    };
-  </script>
+  window.onload = () => {
+    hold("FL","FL"); hold("F","F"); hold("FR","FR");
+    hold("SL","SL"); hold("SR","SR");
+    hold("BL","BL"); hold("B","B"); hold("BR","BR");
+    hold("RL","RL"); hold("RR","RR");
+  };
+</script>
 </head>
 
 <body>
-  <h2>Carro 4WD Omnidireccional</h2>
+<h2>Carro 4WD Omnidireccional</h2>
 
-  <div class="grid">
-    <button id="FL">↖</button>
-    <button id="F">↑</button>
-    <button id="FR">↗</button>
+<div>
+  <button id="FL">↖</button>
+  <button id="F">↑</button>
+  <button id="FR">↗</button>
+</div>
 
-    <button id="L">←</button>
-    <button id="R">→</button>
+<div>
+  <button id="SL">←</button>
+  <button id="SR">→</button>
+</div>
 
-    <button id="BL">↙</button>
-    <button id="B">↓</button>
-    <button id="BR">↘</button>
-  </div>
+<div>
+  <button id="BL">↙</button>
+  <button id="B">↓</button>
+  <button id="BR">↘</button>
+</div>
 
-  <div class="grid" style="margin-top:15px;">
-    <button id="RL">⟲</button>
-    <button id="RR">⟳</button>
-  </div>
+<div>
+  <button id="RL">⟲</button>
+  <button id="RR">⟳</button>
+</div>
 
-  <br>
-  <button class="wide" onclick="sendCommand('S')">STOP</button>
+<br>
+<button class="stop" onclick="send('S')">STOP</button>
 </body>
 </html>
